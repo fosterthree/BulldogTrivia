@@ -129,6 +129,8 @@ struct WindowFocusDetector: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
 
+        NotificationCenter.default.removeObserver(context.coordinator)
+
         // Observe window key status changes
         NotificationCenter.default.addObserver(
             context.coordinator,
@@ -147,6 +149,11 @@ struct WindowFocusDetector: NSViewRepresentable {
         return view
     }
 
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        coordinator.isActive = false
+        NotificationCenter.default.removeObserver(coordinator)
+    }
+
     func updateNSView(_ nsView: NSView, context: Context) {
         context.coordinator.view = nsView
         context.coordinator.isFocused = $isFocused
@@ -159,32 +166,32 @@ struct WindowFocusDetector: NSViewRepresentable {
     class Coordinator: NSObject {
         var isFocused: Binding<Bool>
         weak var view: NSView?
+        var isActive = true
 
         init(isFocused: Binding<Bool>) {
             self.isFocused = isFocused
         }
 
         @objc func windowDidBecomeKey(_ notification: Notification) {
+            guard isActive else { return }
             if let notificationWindow = notification.object as? NSWindow,
                let viewWindow = view?.window,
                notificationWindow === viewWindow {
-                DispatchQueue.main.async {
-                    self.isFocused.wrappedValue = true
-                }
+                isFocused.wrappedValue = true
             }
         }
 
         @objc func windowDidResignKey(_ notification: Notification) {
+            guard isActive else { return }
             if let notificationWindow = notification.object as? NSWindow,
                let viewWindow = view?.window,
                notificationWindow === viewWindow {
-                DispatchQueue.main.async {
-                    self.isFocused.wrappedValue = false
-                }
+                isFocused.wrappedValue = false
             }
         }
 
         deinit {
+            isActive = false
             NotificationCenter.default.removeObserver(self)
         }
     }
@@ -237,4 +244,3 @@ struct ViewCommands: Commands {
         }
     }
 }
-

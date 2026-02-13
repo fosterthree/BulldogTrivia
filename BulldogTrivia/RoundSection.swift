@@ -149,7 +149,7 @@ struct RoundSection: View {
             }
             .pickerStyle(.menu)
             .onChange(of: round.format) { oldValue, newValue in
-                normalizeQuestions(from: oldValue, to: newValue)
+                round.normalizeQuestions(to: newValue)
                 // Update round name if it still has the old format's default name
                 if round.name == oldValue.rawValue {
                     round.name = newValue.rawValue
@@ -170,7 +170,6 @@ struct RoundSection: View {
         }
         .padding(.horizontal, 18)
         .padding(.top, 20)
-        .padding(.bottom, 12)
     }
 
     // MARK: - Helpers
@@ -189,64 +188,12 @@ struct RoundSection: View {
     }
 
     private func addQuestion() {
-        let newQuestion: Question
-        switch round.format {
-        case .music:
-            newQuestion = Question(format: .musicQuestion, text: "", answer: "", points: 1.0)
-        case .crossword:
-            newQuestion = Question(format: .crosswordClue, text: "", answer: "", points: 1.0)
-        case .standard:
-            newQuestion = Question(format: .standard, text: "", answer: "", points: 1.0)
-        case .beforeAndAfter:
-            newQuestion = Question(format: .beforeAndAfter, text: "", answer: "", points: 1.0)
-        }
-        round.questions.append(newQuestion)
+        round.addDefaultQuestion()
     }
 
     private func commitRoundNameEdit() {
         round.name = editingRoundName.trimmingCharacters(in: .whitespacesAndNewlines)
         isEditingRoundName = false
         isRoundNameFocused = false
-    }
-
-    private func normalizeQuestions(from oldFormat: RoundFormat, to newFormat: RoundFormat) {
-        for i in round.questions.indices {
-            let q = round.questions[i]
-
-            if q.format == .connection || q.format == .tiebreaker {
-                continue
-            }
-
-            switch newFormat {
-            case .music:
-                if round.questions[i].title.isEmpty && !q.text.isEmpty {
-                    round.questions[i].title = q.text
-                }
-                round.questions[i].format = .musicQuestion
-
-            case .crossword:
-                if round.questions[i].text.isEmpty && !q.title.isEmpty {
-                    round.questions[i].text = q.title
-                }
-                if round.questions[i].crosswordRevealIndex == nil {
-                    round.questions[i].crosswordRevealIndex = "1"
-                }
-                round.questions[i].format = .crosswordClue
-
-            case .standard:
-                if round.questions[i].text.isEmpty && !q.title.isEmpty {
-                    round.questions[i].text = q.title
-                }
-                round.questions[i].format = .standard
-
-            case .beforeAndAfter:
-                // For Before & After, text becomes clue 1, artist becomes clue 2
-                if round.questions[i].text.isEmpty && !q.title.isEmpty {
-                    round.questions[i].text = q.title
-                }
-                // Keep artist field for clue 2 (if coming from music, preserve it)
-                round.questions[i].format = .beforeAndAfter
-            }
-        }
     }
 }

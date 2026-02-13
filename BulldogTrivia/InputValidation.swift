@@ -183,6 +183,10 @@ func body(content: Content) -> some View {
         .onAppear {
             updateValidationState(for: text)
         }
+        .onDisappear {
+            debounceTask?.cancel()
+            debounceTask = nil
+        }
 }
 
 private func applyRules(to input: String) -> String {
@@ -306,4 +310,3 @@ static let timeInput: [ValidationRule] = [
     .allowedCharacters(CharacterSet(charactersIn: "0123456789:"))
 ]
 }
-

@@ -16,7 +16,8 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: BulldogTrivia - Interactive Trivia Game Application\n\nFeatures:\n- Multi-round trivia game with presentation mode\n- Support for multiple question formats \\(Standard, Music, Crossword, Before & After, Connection, Tiebreaker\\)\n- Spotify integration for music questions\n- Team management and scoring system\n- Real-time presentation window with 16:9 aspect ratio\n- Presenter notes for questions\n- Slide-based presentation with keyboard navigation\n- Save/load trivia games with backwards compatibility\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

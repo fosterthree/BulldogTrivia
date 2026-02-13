@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import OSLog
 import AppKit
-import CommonCrypto
 
 /// Controls Spotify playback for music trivia questions.
 ///
@@ -53,9 +52,6 @@ private enum Constants {
 
     /// Buffer time in seconds before the stop time to account for timing variance.
     static let stopTimeBuffer: TimeInterval = 0.1
-
-    /// Maximum length for Spotify track IDs (base62 encoded).
-    static let maxTrackIDLength = 30
 }
 
 // MARK: - AppleScript Templates
@@ -87,20 +83,6 @@ private enum AppleScriptTemplates {
     }
 }
 
-// MARK: - Spotify API Properties
-
-/// Spotify API access token
-private var accessToken: String?
-
-/// Token expiration date
-private var tokenExpirationDate: Date?
-
-/// Spotify API client ID (register at https://developer.spotify.com/dashboard)
-private let clientID = "YOUR_CLIENT_ID" // TODO: Replace with actual client ID
-
-/// Redirect URI for OAuth callback
-private let redirectURI = "bulldogtrivia://spotify-callback"
-
 // MARK: - Published Properties
 
 /// Indicates whether Spotify is currently playing.
@@ -112,9 +94,6 @@ private let redirectURI = "bulldogtrivia://spotify-callback"
 /// Error message to display to the user, if any.
 @Published var errorMessage: String?
 
-/// Whether user is authenticated with Spotify API
-@Published var isAuthenticated = false
-
 /// The UUID of the question currently being played, or nil if nothing is playing.
 @Published var currentlyPlayingQuestionID: UUID?
 
@@ -123,6 +102,10 @@ private let redirectURI = "bulldogtrivia://spotify-callback"
 private var monitorTask: Task<Void, Never>?
 private var stopTime: TimeInterval?
 private let logger = AppLogger.spotify
+
+deinit {
+    monitorTask?.cancel()
+}
 
 // MARK: - Public Methods
 
@@ -430,32 +413,6 @@ func getTrackMetadata(url: String, completion: @escaping ((title: String, artist
     }
 }
 
-/// Executes an AppleScript and returns the result as a String.
-/// Uses NSAppleScript for better performance than spawning Process.
-private func getSpotifyScriptResult(script: String) async throws -> String? {
-    try await withCheckedThrowingContinuation { continuation in
-        DispatchQueue.global(qos: .userInitiated).async {
-            var error: NSDictionary?
-            let appleScript = NSAppleScript(source: script)
-            let result = appleScript?.executeAndReturnError(&error)
-
-            if let error = error {
-                let errorString = error["NSAppleScriptErrorMessage"] as? String ?? "Unknown error"
-                continuation.resume(throwing: TriviaError.spotifyPlaybackFailed(errorString))
-            } else if let stringValue = result?.stringValue, !stringValue.isEmpty {
-                continuation.resume(returning: stringValue)
-            } else {
-                continuation.resume(returning: nil)
-            }
-        }
-    }
-}
-
-/// Gets the current track URI from Spotify using AppleScript.
-private func getSpotifyCurrentTrackURI(script: String) async throws -> String? {
-    try await getSpotifyScriptResult(script: script)
-}
-
 // MARK: - Private Methods
 
 /// Executes an AppleScript string asynchronously.
@@ -578,41 +535,7 @@ private func stopMonitoringAsync() async {
 /// - Parameter url: A Spotify web URL or URI.
 /// - Returns: The Spotify URI (e.g., "spotify:track:xxx"), or nil if invalid.
 private func parseSpotifyURL(_ url: String) -> String? {
-    let trimmed = url.trimmingCharacters(in: .whitespaces)
-    
-    // Already a URI
-    if trimmed.hasPrefix("spotify:track:") {
-        // Validate it only contains safe characters
-        let trackID = String(trimmed.dropFirst("spotify:track:".count))
-        if isValidTrackID(trackID) {
-            return trimmed
-        }
-        return nil
-    }
-    
-    // Web URL format
-    if trimmed.contains("open.spotify.com/track/") {
-        if let trackID = trimmed.components(separatedBy: "/track/").last?
-            .components(separatedBy: "?").first?
-            .trimmingCharacters(in: .whitespaces),
-           isValidTrackID(trackID) {
-            return "spotify:track:\(trackID)"
-        }
-    }
-    
-    return nil
-}
-
-/// Validates that a track ID contains only safe characters.
-///
-/// - Parameter trackID: The Spotify track ID to validate.
-/// - Returns: True if the track ID is valid.
-private func isValidTrackID(_ trackID: String) -> Bool {
-    // Spotify track IDs are base62 encoded (alphanumeric only)
-    let allowedCharacters = CharacterSet.alphanumerics
-    return trackID.unicodeScalars.allSatisfy { allowedCharacters.contains($0) }
-        && !trackID.isEmpty
-        && trackID.count <= Constants.maxTrackIDLength
+    TriviaValidator.canonicalSpotifyURI(from: url)
 }
 
 /// Parses a time string into seconds.
@@ -620,178 +543,8 @@ private func isValidTrackID(_ trackID: String) -> Bool {
 /// - Parameter timeString: Time as seconds ("90") or MM:SS format ("1:30").
 /// - Returns: The time in seconds, or nil if the format is invalid.
 private func parseTime(_ timeString: String) -> TimeInterval? {
-    let trimmed = timeString.trimmingCharacters(in: .whitespaces)
-    
-    // Format: "90" (seconds only)
-    if let seconds = Double(trimmed), seconds >= 0 {
-        return seconds
-    }
-    
-    // Format: "1:30" or "01:30" (MM:SS)
-    let components = trimmed.components(separatedBy: ":")
-    if components.count == 2,
-       let minutes = Double(components[0]),
-       let seconds = Double(components[1]),
-       minutes >= 0, seconds >= 0, seconds < 60 {
-        return (minutes * 60) + seconds
-    }
-    
-    return nil
+    TriviaValidator.parseTimeToSeconds(timeString)
 }
-
-// MARK: - Spotify API Authentication
-
-/// Initiates Spotify OAuth authentication flow using PKCE
-func authenticate() {
-    Task {
-        do {
-            // Generate PKCE code verifier and challenge
-            let codeVerifier = generateCodeVerifier()
-            let codeChallenge = generateCodeChallenge(from: codeVerifier)
-
-            // Store code verifier for later use
-            UserDefaults.standard.set(codeVerifier, forKey: "spotify_code_verifier")
-
-            // Build authorization URL
-            guard var components = URLComponents(string: "https://accounts.spotify.com/authorize") else {
-                logger.error("Failed to create URLComponents for authorization")
-                return
-            }
-
-            components.queryItems = [
-                URLQueryItem(name: "client_id", value: clientID),
-                URLQueryItem(name: "response_type", value: "code"),
-                URLQueryItem(name: "redirect_uri", value: redirectURI),
-                URLQueryItem(name: "code_challenge_method", value: "S256"),
-                URLQueryItem(name: "code_challenge", value: codeChallenge),
-                URLQueryItem(name: "scope", value: "user-read-private user-read-email")
-            ]
-
-            guard let authURL = components.url else {
-                logger.error("Failed to create authorization URL")
-                return
-            }
-
-            // Open authorization URL in browser
-            await MainActor.run {
-                NSWorkspace.shared.open(authURL)
-            }
-        } catch {
-            logger.error("Authentication failed: \(error.localizedDescription)")
-        }
-    }
-}
-
-/// Handles the OAuth callback with authorization code
-func handleCallback(code: String) {
-    Task {
-        guard let codeVerifier = UserDefaults.standard.string(forKey: "spotify_code_verifier") else {
-            logger.error("No code verifier found")
-            return
-        }
-
-        // Exchange authorization code for access token
-        guard let components = URLComponents(string: "https://accounts.spotify.com/api/token"),
-              let tokenURL = components.url else {
-            logger.error("Failed to create token URL")
-            return
-        }
-
-        var request = URLRequest(url: tokenURL)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-
-        let bodyParams = [
-            "client_id": clientID,
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": redirectURI,
-            "code_verifier": codeVerifier
-        ]
-
-        let bodyString = bodyParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
-        request.httpBody = bodyString.data(using: .utf8)
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let response = try JSONDecoder().decode(SpotifyTokenResponse.self, from: data)
-
-            await MainActor.run {
-                self.accessToken = response.access_token
-                self.tokenExpirationDate = Date().addingTimeInterval(TimeInterval(response.expires_in))
-                self.isAuthenticated = true
-                UserDefaults.standard.removeObject(forKey: "spotify_code_verifier")
-            }
-
-            logger.info("Successfully authenticated with Spotify")
-        } catch {
-            logger.error("Token exchange failed: \(error.localizedDescription)")
-        }
-    }
-}
-
-/// Generates a random code verifier for PKCE
-private func generateCodeVerifier() -> String {
-    var buffer = [UInt8](repeating: 0, count: 32)
-    _ = SecRandomCopyBytes(kSecRandomDefault, buffer.count, &buffer)
-    return Data(buffer).base64EncodedString()
-        .replacingOccurrences(of: "+", with: "-")
-        .replacingOccurrences(of: "/", with: "_")
-        .replacingOccurrences(of: "=", with: "")
-        .trimmingCharacters(in: .whitespaces)
-}
-
-/// Generates a code challenge from a code verifier
-private func generateCodeChallenge(from verifier: String) -> String {
-    guard let data = verifier.data(using: .utf8) else { return "" }
-    var buffer = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-    data.withUnsafeBytes {
-        _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &buffer)
-    }
-    return Data(buffer).base64EncodedString()
-        .replacingOccurrences(of: "+", with: "-")
-        .replacingOccurrences(of: "/", with: "_")
-        .replacingOccurrences(of: "=", with: "")
-        .trimmingCharacters(in: .whitespaces)
-}
-
-/// Checks if the access token is still valid
-private var isTokenValid: Bool {
-    guard let expirationDate = tokenExpirationDate else { return false }
-    return Date() < expirationDate
-}
-}
-
-// MARK: - Spotify API Response Models
-
-private struct SpotifyTokenResponse: Codable {
-    let access_token: String
-    let token_type: String
-    let expires_in: Int
-    let refresh_token: String?
-}
-
-private struct SpotifySearchResponse: Codable {
-    let tracks: SpotifyTracks
-}
-
-private struct SpotifyTracks: Codable {
-    let items: [SpotifyTrack]
-}
-
-private struct SpotifyTrack: Codable {
-    let id: String
-    let name: String
-    let artists: [SpotifyArtist]
-    let external_urls: SpotifyExternalURLs
-}
-
-private struct SpotifyArtist: Codable {
-    let name: String
-}
-
-private struct SpotifyExternalURLs: Codable {
-    let spotify: String
 }
 
 // MARK: - HTML Entity Decoding

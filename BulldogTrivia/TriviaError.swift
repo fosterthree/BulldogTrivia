@@ -264,6 +264,9 @@ var failureReason: String? {
 /// ```
 struct TriviaValidator {
 
+private static let spotifyTrackPrefix = "spotify:track:"
+private static let maxSpotifyTrackIDLength = 30
+
 // MARK: - Single Value Validators
 
 /// Validates that a team name is not empty.
@@ -362,6 +365,52 @@ static func validateRoundsForEmptyQuestions(_ rounds: [Round]) -> TriviaError? {
 
 // MARK: - Format Validators
 
+/// Parses a Spotify URL or URI into canonical URI format (`spotify:track:<id>`).
+static func canonicalSpotifyURI(from url: String) -> String? {
+    let trimmed = url.trimmingCharacters(in: .whitespaces)
+
+    if trimmed.hasPrefix(spotifyTrackPrefix) {
+        let trackID = String(trimmed.dropFirst(spotifyTrackPrefix.count))
+        return isValidSpotifyTrackID(trackID) ? trimmed : nil
+    }
+
+    if trimmed.contains("open.spotify.com/track/"),
+       let trackID = trimmed.components(separatedBy: "/track/").last?
+        .components(separatedBy: "?").first?
+        .trimmingCharacters(in: .whitespaces),
+       isValidSpotifyTrackID(trackID) {
+        return "\(spotifyTrackPrefix)\(trackID)"
+    }
+
+    return nil
+}
+
+/// Parses a time string into seconds, supporting both `SS` and `MM:SS`.
+static func parseTimeToSeconds(_ time: String) -> TimeInterval? {
+    let trimmed = time.trimmingCharacters(in: .whitespaces)
+
+    if let seconds = Double(trimmed), seconds >= 0 {
+        return seconds
+    }
+
+    let components = trimmed.components(separatedBy: ":")
+    if components.count == 2,
+       let minutes = Double(components[0]),
+       let seconds = Double(components[1]),
+       minutes >= 0, seconds >= 0, seconds < 60 {
+        return (minutes * 60) + seconds
+    }
+
+    return nil
+}
+
+private static func isValidSpotifyTrackID(_ trackID: String) -> Bool {
+    let allowedCharacters = CharacterSet.alphanumerics
+    return !trackID.isEmpty
+        && trackID.count <= maxSpotifyTrackIDLength
+        && trackID.unicodeScalars.allSatisfy { allowedCharacters.contains($0) }
+}
+
 /// Validates that a Spotify URL is in a recognized format.
 ///
 /// Accepts:
@@ -378,16 +427,8 @@ static func validateSpotifyURL(_ url: String) -> TriviaError? {
     if trimmed.isEmpty {
         return nil // Empty is allowed (just means no URL set)
     }
-    
-    if trimmed.hasPrefix("spotify:track:") {
-        return nil
-    }
-    
-    if trimmed.contains("open.spotify.com/track/") {
-        return nil
-    }
-    
-    return .invalidSpotifyURL(url)
+
+    return canonicalSpotifyURI(from: trimmed) == nil ? .invalidSpotifyURL(url) : nil
 }
 
 /// Validates that a time string is in a recognized format.
@@ -406,21 +447,8 @@ static func validateTimeFormat(_ time: String) -> TriviaError? {
     if trimmed.isEmpty {
         return nil // Empty is allowed
     }
-    
-    // Check seconds format
-    if Double(trimmed) != nil {
-        return nil
-    }
-    
-    // Check MM:SS format
-    let components = trimmed.components(separatedBy: ":")
-    if components.count == 2,
-       Double(components[0]) != nil,
-       Double(components[1]) != nil {
-        return nil
-    }
-    
-    return .invalidTimeFormat(time)
+
+    return parseTimeToSeconds(trimmed) == nil ? .invalidTimeFormat(time) : nil
 }
 
 // MARK: - Comprehensive Validation

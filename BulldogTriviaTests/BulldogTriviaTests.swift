@@ -157,6 +157,11 @@ func testInvalidSpotifyURLReturnsError() {
     XCTAssertEqual(result, .invalidSpotifyURL("https://youtube.com/watch?v=xxx"))
 }
 
+func testSpotifyURLWithInvalidTrackIDReturnsError() {
+    let result = TriviaValidator.validateSpotifyURL("spotify:track:invalid-id")
+    XCTAssertEqual(result, .invalidSpotifyURL("spotify:track:invalid-id"))
+}
+
 // MARK: - Time Format Validation
 
 func testSecondsFormatIsValid() {
@@ -177,6 +182,16 @@ func testEmptyTimeIsValid() {
 func testInvalidTimeFormatReturnsError() {
     let result = TriviaValidator.validateTimeFormat("invalid")
     XCTAssertEqual(result, .invalidTimeFormat("invalid"))
+}
+
+func testMMSSFormatWithInvalidSecondsReturnsError() {
+    let result = TriviaValidator.validateTimeFormat("1:75")
+    XCTAssertEqual(result, .invalidTimeFormat("1:75"))
+}
+
+func testNegativeTimeReturnsError() {
+    let result = TriviaValidator.validateTimeFormat("-5")
+    XCTAssertEqual(result, .invalidTimeFormat("-5"))
 }
 }
 
@@ -453,6 +468,30 @@ func testMultipleRulesApplyInOrder() {
     }
     
     XCTAssertEqual(result, "HELLO WORL")
+}
+}
+
+// MARK: - Shared Parsing Helpers Tests
+
+final class ParsingHelpersTests: XCTestCase {
+
+func testCanonicalSpotifyURIConvertsWebURL() {
+    let input = "https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh?si=abc123"
+    let parsed = TriviaValidator.canonicalSpotifyURI(from: input)
+    XCTAssertEqual(parsed, "spotify:track:4iV5W9uYEdYUVa79Axb7Rh")
+}
+
+func testCanonicalSpotifyURIRejectsInvalidID() {
+    let parsed = TriviaValidator.canonicalSpotifyURI(from: "spotify:track:not-valid!")
+    XCTAssertNil(parsed)
+}
+
+func testParseTimeToSecondsParsesMMSS() {
+    XCTAssertEqual(TriviaValidator.parseTimeToSeconds("1:30"), 90)
+}
+
+func testParseTimeToSecondsRejectsInvalidMMSS() {
+    XCTAssertNil(TriviaValidator.parseTimeToSeconds("1:80"))
 }
 }
 

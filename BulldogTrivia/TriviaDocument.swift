@@ -20,7 +20,13 @@ static var triviaGame: UTType {
 struct TriviaDocument: FileDocument {
 static var readableContentTypes: [UTType] { [.triviaGame] }
 
-var gameData: TriviaGameData
+var gameData: TriviaGameData {
+    didSet {
+        refreshCachedFileData()
+    }
+}
+
+private var cachedFileData: Data
 
 // INIT: Create a new document with minimal defaults
 init() {
@@ -42,6 +48,7 @@ init() {
             Team(name: "New Team")
         ]
     )
+    self.cachedFileData = Self.encodeForStorage(self.gameData)
 }
 
 // LOAD: Read JSON from disk with error recovery
@@ -54,6 +61,7 @@ init(configuration: ReadConfiguration) throws {
     do {
         let decodedData = try JSONDecoder().decode(TriviaGameData.self, from: data)
         self.gameData = decodedData
+        self.cachedFileData = data
         let roundCount = decodedData.rounds.count
         let teamCount = decodedData.teams.count
         AppLogger.document.info("Document loaded successfully with \(roundCount) rounds and \(teamCount) teams")
@@ -83,28 +91,15 @@ init(configuration: ReadConfiguration) throws {
 
 // SAVE: Write JSON to disk
 func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-    // Sanitize data before saving to remove orphaned scores
-    sanitizeData()
-
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = .prettyPrinted
-    let data = try encoder.encode(gameData)
-    return FileWrapper(regularFileWithContents: data)
+    return FileWrapper(regularFileWithContents: cachedFileData)
 }
 
-/// Removes orphaned data before saving.
-/// This prevents file bloat from deleted rounds that still have team scores.
-private mutating func sanitizeData() {
-    // Build set of valid round IDs
-    let validRoundIDs = Set(gameData.rounds.map { $0.id })
+private mutating func refreshCachedFileData() {
+    cachedFileData = Self.encodeForStorage(gameData)
+}
 
-    // Remove scores for rounds that no longer exist
-    for i in gameData.teams.indices {
-        gameData.teams[i].scores = gameData.teams[i].scores.filter { scoreEntry in
-            validRoundIDs.contains(scoreEntry.key)
-        }
-    }
-
-    AppLogger.document.debug("Data sanitization complete")
+private static func encodeForStorage(_ data: TriviaGameData) -> Data {
+    let encoder = JSONEncoder()
+    return (try? encoder.encode(data)) ?? Data("{}".utf8)
 }
 }

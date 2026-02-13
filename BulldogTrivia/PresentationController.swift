@@ -35,7 +35,6 @@ struct PresentationState: Equatable {
 // MARK: - Private Properties
 
 private let logger = AppLogger.presentation
-private var slideIndexByID: [UUID: Int] = [:]
 private var questionSlideIndexByQuestionID: [UUID: Int] = [:]
 
 /// Cached tiebreaker answer (invalidated when gameData changes)
@@ -117,8 +116,7 @@ var tiebreakerAnswer: Double? {
 
 func updateData(_ gameData: TriviaGameData) {
     logger.debug("Updating game data")
-    self.gameData = gameData
-    cachedTiebreakerAnswer = nil  // Invalidate cache
+    refreshSlides(from: gameData, resetNavigation: false)
 }
 
 func updateRoundIcon(roundID: UUID, newFormat: RoundFormat) {
@@ -139,147 +137,7 @@ func updateRoundIcon(roundID: UUID, newFormat: RoundFormat) {
 func generateSlides(from gameData: TriviaGameData) {
     let signpostID = logger.logOperationStart("Generate Slides")
     defer { logger.logOperationEnd("Generate Slides", signpostID: signpostID) }
-
-    self.gameData = gameData
-    cachedTiebreakerAnswer = nil  // Invalidate cache
-
-    var newSlides: [PresentationSlide] = []
-
-    // Welcome slide
-    newSlides.append(PresentationSlide(
-        type: .welcome,
-        title: "Welcome",
-        icon: "hand.wave.fill"
-    ))
-
-    // Pre-compute tiebreaker answer once for all standings slides
-    let tiebreakerAnswer = extractTiebreakerAnswer(from: gameData)
-    cachedTiebreakerAnswer = tiebreakerAnswer
-
-    // Helper function to parse crossword reveal indices
-    func parseRevealIndices(_ indexString: String) -> Set<Int> {
-        let components = indexString.split(separator: ",").compactMap {
-            Int($0.trimmingCharacters(in: .whitespaces))
-        }
-        return Set(components)
-    }
-
-    // Generate slides for each round
-    for (roundIndex, round) in gameData.rounds.enumerated() {
-        // Round title
-        newSlides.append(PresentationSlide(
-            type: .roundTitle(roundIndex: roundIndex),
-            title: round.name,
-            icon: round.format.symbol,
-            roundID: round.id
-        ))
-
-        // Questions (skip connections - they're answer-only)
-        var questionNumber = 0
-        for (qIndex, question) in round.questions.enumerated() {
-            if question.format == .connection {
-                continue
-            }
-
-            questionNumber += 1
-
-            let title: String
-            if question.format == .tiebreaker {
-                title = "Tiebreaker"
-            } else {
-                title = "R\(roundIndex + 1) - Q\(questionNumber)"
-            }
-
-            // Pre-compute crossword reveal indices if applicable
-            let crosswordIndices = question.format == .crosswordClue
-                ? parseRevealIndices(question.crosswordRevealIndex ?? "1")
-                : nil
-
-            newSlides.append(PresentationSlide(
-                type: .question(roundIndex: roundIndex, questionIndex: qIndex),
-                title: title,
-                icon: "questionmark.circle.fill",
-                roundID: round.id,
-                questionID: question.id,
-                questionNumber: questionNumber,
-                crosswordRevealIndices: crosswordIndices
-            ))
-        }
-
-        // Submit answers
-        newSlides.append(PresentationSlide(
-            type: .submitAnswers(roundIndex: roundIndex),
-            title: "Submit Answers",
-            icon: "paperplane.fill",
-            roundID: round.id
-        ))
-
-        // Answers (including connections)
-        questionNumber = 0
-        for (qIndex, question) in round.questions.enumerated() {
-            let title: String
-            if question.format == .tiebreaker {
-                title = "Tiebreaker Answer"
-            } else if question.format == .connection {
-                title = "Connection"
-            } else {
-                questionNumber += 1
-                title = "R\(roundIndex + 1) - A\(questionNumber)"
-            }
-
-            // Pre-compute music question flag
-            let isMusicQuestion = question.format == .musicQuestion
-
-            // Pre-compute crossword reveal indices if applicable
-            let crosswordIndices = question.format == .crosswordClue
-                ? parseRevealIndices(question.crosswordRevealIndex ?? "1")
-                : nil
-
-            newSlides.append(PresentationSlide(
-                type: .answer(roundIndex: roundIndex, questionIndex: qIndex),
-                title: title,
-                icon: "checkmark.circle.fill",
-                roundID: round.id,
-                questionID: question.id,
-                isMusicQuestion: isMusicQuestion,
-                crosswordRevealIndices: crosswordIndices
-            ))
-        }
-
-        // Standings after this round - pre-compute ranked teams
-        let scoringRounds = Array(gameData.rounds.prefix(roundIndex + 1))
-        let rankedTeams = gameData.teams
-            .withRanks(rounds: scoringRounds, correctTiebreakerAnswer: tiebreakerAnswer)
-            .map { (teamID: $0.team.id, teamName: $0.team.name, rank: $0.rank, score: $0.team.totalScore(rounds: scoringRounds)) }
-
-        newSlides.append(PresentationSlide(
-            type: .standings(afterRound: roundIndex),
-            title: "Standings",
-            icon: "chart.bar.fill",
-            rankedTeams: rankedTeams
-        ))
-    }
-
-    self.slides = newSlides
-    self.currentSlideIndex = 0
-    self.standingsRevealCount = 0
-    self.answerRevealShown = false
-
-    // Build lookup dictionaries for O(1) jumps
-    // Note: These are rebuilt on every slide generation to ensure consistency.
-    // This is acceptable because slide generation is infrequent (only when data changes).
-    slideIndexByID = Dictionary(uniqueKeysWithValues:
-        newSlides.enumerated().map { ($0.element.id, $0.offset) }
-    )
-    questionSlideIndexByQuestionID = Dictionary(uniqueKeysWithValues:
-        newSlides.enumerated()
-            .filter { if case .question = $0.element.type { return true }; return false }
-            .compactMap { index, slide in
-                slide.questionID.map { ($0, index) }
-            }
-    )
-
-    logger.info("Generated \(newSlides.count) slides from \(gameData.rounds.count) rounds")
+    refreshSlides(from: gameData, resetNavigation: true)
 }
 
 // MARK: - Navigation
@@ -377,14 +235,6 @@ func jumpTo(index: Int) {
     logger.info("Jumped to slide \(index): \(self.slides[index].title)")
 }
 
-func jumpTo(slideID: UUID) {
-    guard let index = slideIndexByID[slideID] else {
-        logger.warning("Attempted jump to unknown slide ID: \(slideID)")
-        return
-    }
-    jumpTo(index: index)
-}
-
 func jumpToQuestion(questionID: UUID) {
     guard let index = questionSlideIndexByQuestionID[questionID] else {
         logger.warning("No question slide found for question ID: \(questionID)")
@@ -393,5 +243,178 @@ func jumpToQuestion(questionID: UUID) {
     jumpTo(index: index)
 }
 
+// MARK: - Slide Refresh
+
+private func refreshSlides(from gameData: TriviaGameData, resetNavigation: Bool) {
+    let previousSlideID = currentSlide?.id
+    let previousSlideIndex = currentSlideIndex
+    let previousStandingsRevealCount = standingsRevealCount
+    let previousAnswerRevealShown = answerRevealShown
+
+    self.gameData = gameData
+    cachedTiebreakerAnswer = nil
+
+    let newSlides = buildSlides(from: gameData)
+    slides = newSlides
+    rebuildQuestionSlideIndex(from: newSlides)
+
+    guard !newSlides.isEmpty else {
+        currentSlideIndex = 0
+        standingsRevealCount = 0
+        answerRevealShown = false
+        return
+    }
+
+    if resetNavigation {
+        currentSlideIndex = 0
+        standingsRevealCount = 0
+        answerRevealShown = false
+    } else {
+        if let previousSlideID,
+           let matchedIndex = newSlides.firstIndex(where: { $0.id == previousSlideID }) {
+            currentSlideIndex = matchedIndex
+        } else {
+            currentSlideIndex = min(previousSlideIndex, newSlides.count - 1)
+        }
+
+        if let slide = currentSlide, case .standings = slide.type {
+            standingsRevealCount = min(previousStandingsRevealCount, gameData.teams.count)
+        } else {
+            standingsRevealCount = 0
+        }
+
+        if let slide = currentSlide, case .answer = slide.type {
+            answerRevealShown = slide.isMusicQuestion || previousAnswerRevealShown
+        } else {
+            answerRevealShown = false
+        }
+    }
+
+    logger.info("Generated \(newSlides.count) slides from \(gameData.rounds.count) rounds")
 }
 
+private func buildSlides(from gameData: TriviaGameData) -> [PresentationSlide] {
+    var newSlides: [PresentationSlide] = []
+
+    // Welcome slide
+    newSlides.append(PresentationSlide(
+        type: .welcome,
+        title: "Welcome",
+        icon: "hand.wave.fill"
+    ))
+
+    // Pre-compute tiebreaker answer once for all standings slides
+    let tiebreakerAnswer = extractTiebreakerAnswer(from: gameData)
+    cachedTiebreakerAnswer = tiebreakerAnswer
+
+    func parseRevealIndices(_ indexString: String) -> Set<Int> {
+        let components = indexString.split(separator: ",").compactMap {
+            Int($0.trimmingCharacters(in: .whitespaces))
+        }
+        return Set(components)
+    }
+
+    for (roundIndex, round) in gameData.rounds.enumerated() {
+        newSlides.append(PresentationSlide(
+            type: .roundTitle(roundIndex: roundIndex),
+            title: round.name,
+            icon: round.format.symbol,
+            roundID: round.id
+        ))
+
+        // Questions (skip connections - they're answer-only)
+        var questionNumber = 0
+        for (qIndex, question) in round.questions.enumerated() {
+            if question.format == .connection {
+                continue
+            }
+
+            questionNumber += 1
+            let title = question.format == .tiebreaker
+                ? "Tiebreaker"
+                : "R\(roundIndex + 1) - Q\(questionNumber)"
+
+            let crosswordIndices = question.format == .crosswordClue
+                ? parseRevealIndices(question.crosswordRevealIndex ?? "1")
+                : nil
+
+            newSlides.append(PresentationSlide(
+                type: .question(roundIndex: roundIndex, questionIndex: qIndex),
+                title: title,
+                icon: "questionmark.circle.fill",
+                roundID: round.id,
+                questionID: question.id,
+                questionNumber: questionNumber,
+                crosswordRevealIndices: crosswordIndices
+            ))
+        }
+
+        newSlides.append(PresentationSlide(
+            type: .submitAnswers(roundIndex: roundIndex),
+            title: "Submit Answers",
+            icon: "paperplane.fill",
+            roundID: round.id
+        ))
+
+        // Answers (including connections)
+        questionNumber = 0
+        for (qIndex, question) in round.questions.enumerated() {
+            let title: String
+            let answerNumber: Int?
+
+            if question.format == .tiebreaker {
+                title = "Tiebreaker Answer"
+                answerNumber = nil
+            } else if question.format == .connection {
+                title = "Connection"
+                answerNumber = nil
+            } else {
+                questionNumber += 1
+                title = "R\(roundIndex + 1) - A\(questionNumber)"
+                answerNumber = questionNumber
+            }
+
+            let isMusicQuestion = question.format == .musicQuestion
+            let crosswordIndices = question.format == .crosswordClue
+                ? parseRevealIndices(question.crosswordRevealIndex ?? "1")
+                : nil
+
+            newSlides.append(PresentationSlide(
+                type: .answer(roundIndex: roundIndex, questionIndex: qIndex),
+                title: title,
+                icon: "checkmark.circle.fill",
+                roundID: round.id,
+                questionID: question.id,
+                questionNumber: answerNumber,
+                isMusicQuestion: isMusicQuestion,
+                crosswordRevealIndices: crosswordIndices
+            ))
+        }
+
+        let scoringRounds = Array(gameData.rounds.prefix(roundIndex + 1))
+        let rankedTeams = gameData.teams
+            .withRanks(rounds: scoringRounds, correctTiebreakerAnswer: tiebreakerAnswer)
+            .map { (teamID: $0.team.id, teamName: $0.team.name, rank: $0.rank, score: $0.team.totalScore(rounds: scoringRounds)) }
+
+        newSlides.append(PresentationSlide(
+            type: .standings(afterRound: roundIndex),
+            title: "Standings",
+            icon: "chart.bar.fill",
+            rankedTeams: rankedTeams
+        ))
+    }
+
+    return newSlides
+}
+
+private func rebuildQuestionSlideIndex(from slides: [PresentationSlide]) {
+    questionSlideIndexByQuestionID = Dictionary(uniqueKeysWithValues:
+        slides.enumerated()
+            .filter { if case .question = $0.element.type { return true }; return false }
+            .compactMap { index, slide in
+                slide.questionID.map { ($0, index) }
+            }
+    )
+}
+
+}

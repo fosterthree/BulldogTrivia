@@ -78,18 +78,13 @@ struct AllRoundsEditorView: View {
         let newRound = Round(name: "Standard Q&A", format: .standard, questions: defaultQuestions)
         document.gameData.rounds.append(newRound)
         expandedRounds.insert(newRound.id)
-
-        // Regenerate slides
-        presentationController.generateSlides(from: document.gameData)
+        presentationController.updateData(document.gameData)
     }
 
     private func deleteRound(at index: Int) {
         let roundID = document.gameData.rounds[index].id
         document.gameData.rounds.remove(at: index)
         expandedRounds.remove(roundID)
-
-        // Regenerate slides
-        presentationController.generateSlides(from: document.gameData)
+        presentationController.updateData(document.gameData)
     }
 }
-

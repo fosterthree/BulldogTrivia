@@ -61,6 +61,10 @@ struct PresentationControlPanel: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showPreview)  // Smooth expand/collapse
+        .onDisappear {
+            selectionUpdateTask?.cancel()
+            selectionUpdateTask = nil
+        }
     }
 
     @ViewBuilder
@@ -276,7 +280,7 @@ struct PresentationControlPanel: View {
             let idx = roundIndex ?? document.gameData.rounds.firstIndex(where: { $0.id == editingID })
             
             if let idx = idx {
-                document.gameData.rounds[idx].name = editingRoundName
+                document.gameData.rounds[idx].name = editingRoundName.trimmingCharacters(in: .whitespacesAndNewlines)
             }
         }
         
@@ -284,51 +288,7 @@ struct PresentationControlPanel: View {
         focusedRoundID = nil
         editingRoundName = ""
         
-        // Regenerate slides to update round names
-        presentationController.generateSlides(from: document.gameData)
-    }
-    
-    private func iconName(for slide: PresentationSlide) -> String {
-        switch slide.type {
-        case .welcome:
-            return "hand.wave.fill"
-        case .rules:
-            return "list.bullet.clipboard"
-        case .roundTitle(let roundIndex):
-            // Use the round's format symbol
-            if roundIndex < document.gameData.rounds.count {
-                return document.gameData.rounds[roundIndex].format.symbol
-            }
-            return "trophy.fill"
-        case .question(let roundIndex, let qIndex):
-            // Use numbered circle icon
-            if roundIndex < document.gameData.rounds.count {
-                let round = document.gameData.rounds[roundIndex]
-                if qIndex < round.questions.count {
-                    let question = round.questions[qIndex]
-                    return question.sidebarIcon(number: questionNumber(roundIndex: roundIndex, qIndex: qIndex))
-                }
-            }
-            return "questionmark.circle.fill"
-        case .submitAnswers:
-            return "paperplane.fill"
-        case .answer(let roundIndex, let qIndex):
-            // Use numbered circle icon
-            if roundIndex < document.gameData.rounds.count {
-                let round = document.gameData.rounds[roundIndex]
-                if qIndex < round.questions.count {
-                    let question = round.questions[qIndex]
-                    return question.sidebarIcon(number: questionNumber(roundIndex: roundIndex, qIndex: qIndex))
-                }
-            }
-            return "checkmark.circle.fill"
-        case .standings:
-            return "chart.bar.fill"
-        case .finalResults:
-            return "star.fill"
-        case .thankYou:
-            return "heart.fill"
-        }
+        presentationController.updateData(document.gameData)
     }
     
     private func isQuestionOrAnswerSlide(_ type: SlideType) -> Bool {
@@ -362,21 +322,6 @@ struct PresentationControlPanel: View {
         }
     }
     
-    private func questionNumber(roundIndex: Int, qIndex: Int) -> Int {
-        // Calculate the display number (1-based, excluding tiebreakers)
-        guard roundIndex < document.gameData.rounds.count else { return qIndex + 1 }
-        let round = document.gameData.rounds[roundIndex]
-        
-        // Count non-tiebreaker questions up to this index
-        var displayNumber = 0
-        for i in 0...qIndex {
-            if i < round.questions.count && round.questions[i].format != .tiebreaker {
-                displayNumber += 1
-            }
-        }
-        return displayNumber
-    }
-    
     private func slideAccessibilityLabel(for slide: PresentationSlide, at index: Int) -> String {
         let isCurrentSlide = index == presentationController.currentSlideIndex
         let currentIndicator = isCurrentSlide ? ", current slide" : ""
@@ -389,12 +334,12 @@ struct PresentationControlPanel: View {
                 return "Round \(roundIndex + 1): \(document.gameData.rounds[roundIndex].name)\(currentIndicator)"
             }
             return "Round \(roundIndex + 1)\(currentIndicator)"
-        case .question(let roundIndex, let qIndex):
-            return "Question \(questionNumber(roundIndex: roundIndex, qIndex: qIndex))\(currentIndicator)"
+        case .question:
+            return "\(slide.title)\(currentIndicator)"
         case .submitAnswers:
             return "Submit answers slide\(currentIndicator)"
-        case .answer(let roundIndex, let qIndex):
-            return "Answer \(questionNumber(roundIndex: roundIndex, qIndex: qIndex))\(currentIndicator)"
+        case .answer:
+            return "\(slide.title)\(currentIndicator)"
         case .standings(let afterRound):
             if let round = afterRound {
                 return "Standings after round \(round + 1)\(currentIndicator)"
@@ -409,4 +354,3 @@ struct PresentationControlPanel: View {
         }
     }
 }
-

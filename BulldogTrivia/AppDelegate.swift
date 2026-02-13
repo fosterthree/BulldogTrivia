@@ -8,6 +8,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        removeEventMonitor()
+
         // Install global keyboard event monitor for arrow keys
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             // Only handle arrow keys
@@ -48,9 +50,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        // Clean up event monitor
-        if let monitor = eventMonitor {
-            NSEvent.removeMonitor(monitor)
+        removeEventMonitor()
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        // DocumentGroup autosaves continuously. On some iCloud-backed files,
+        // AppKit can hang during final coordinated terminate-save.
+        // Clear pending edited state so termination does not block on that pass.
+        for document in NSDocumentController.shared.documents {
+            document.updateChangeCount(.changeCleared)
         }
+        return .terminateNow
+    }
+
+    deinit {
+        removeEventMonitor()
+    }
+
+    private func removeEventMonitor() {
+        guard let monitor = eventMonitor else { return }
+        NSEvent.removeMonitor(monitor)
+        eventMonitor = nil
     }
 }

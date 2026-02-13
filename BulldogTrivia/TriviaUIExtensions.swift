@@ -189,6 +189,69 @@ var symbol: String {
     case .beforeAndAfter: return "arrow.left.arrow.right"
     }
 }
+
+var defaultQuestion: Question {
+    switch self {
+    case .music:
+        return Question(
+            format: .musicQuestion,
+            text: "",
+            answer: "",
+            points: 1.0,
+            title: "",
+            artist: "",
+            titlePoints: 1.0,
+            artistPoints: 1.0
+        )
+    case .crossword:
+        return Question(format: .crosswordClue, text: "", answer: "", points: 1.0)
+    case .standard:
+        return Question(format: .standard, text: "", answer: "", points: 1.0)
+    case .beforeAndAfter:
+        return Question(format: .beforeAndAfter, text: "", answer: "", points: 1.0)
+    }
+}
+}
+
+extension Round {
+mutating func addDefaultQuestion() {
+    questions.append(format.defaultQuestion)
+}
+
+mutating func normalizeQuestions(to newFormat: RoundFormat) {
+    for i in questions.indices {
+        let question = questions[i]
+        if question.format == .connection || question.format == .tiebreaker {
+            continue
+        }
+
+        switch newFormat {
+        case .music:
+            if questions[i].title.isEmpty && !question.text.isEmpty {
+                questions[i].title = question.text
+            }
+            questions[i].format = .musicQuestion
+        case .crossword:
+            if questions[i].text.isEmpty && !question.title.isEmpty {
+                questions[i].text = question.title
+            }
+            if questions[i].crosswordRevealIndex == nil {
+                questions[i].crosswordRevealIndex = "1"
+            }
+            questions[i].format = .crosswordClue
+        case .standard:
+            if questions[i].text.isEmpty && !question.title.isEmpty {
+                questions[i].text = question.title
+            }
+            questions[i].format = .standard
+        case .beforeAndAfter:
+            if questions[i].text.isEmpty && !question.title.isEmpty {
+                questions[i].text = question.title
+            }
+            questions[i].format = .beforeAndAfter
+        }
+    }
+}
 }
 
 extension QuestionFormat {
@@ -424,4 +487,3 @@ struct PresentationKeyHandler: NSViewRepresentable {
         }
     }
 }
-

@@ -124,6 +124,10 @@ var body: some View {
             }
         }
     }
+    .onDisappear {
+        regenerationTask?.cancel()
+        regenerationTask = nil
+    }
 }
 
 // MARK: - Sidebar Content
@@ -180,4 +184,3 @@ private func validateDocumentData() {
     }
 }
 }
-
