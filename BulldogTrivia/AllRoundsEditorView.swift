@@ -16,7 +16,7 @@ struct AllRoundsEditorView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 24) {
+                LazyVStack(spacing: 24) {
                     ForEach(document.gameData.rounds.indices, id: \.self) { idx in
                         RoundSection(
                             round: $document.gameData.rounds[idx],

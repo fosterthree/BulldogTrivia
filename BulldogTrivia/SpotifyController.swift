@@ -48,7 +48,8 @@ class SpotifyController: ObservableObject {
 
 private enum Constants {
     /// Polling interval in milliseconds for monitoring playback position.
-    static let pollingIntervalMs = 200
+    /// Reduced from 200ms to 1000ms to improve battery life and reduce CPU usage.
+    static let pollingIntervalMs = 1000
 
     /// Buffer time in seconds before the stop time to account for timing variance.
     static let stopTimeBuffer: TimeInterval = 0.1
@@ -430,41 +431,22 @@ func getTrackMetadata(url: String, completion: @escaping ((title: String, artist
 }
 
 /// Executes an AppleScript and returns the result as a String.
+/// Uses NSAppleScript for better performance than spawning Process.
 private func getSpotifyScriptResult(script: String) async throws -> String? {
     try await withCheckedThrowingContinuation { continuation in
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
+        DispatchQueue.global(qos: .userInitiated).async {
+            var error: NSDictionary?
+            let appleScript = NSAppleScript(source: script)
+            let result = appleScript?.executeAndReturnError(&error)
 
-        let outputPipe = Pipe()
-        let errorPipe = Pipe()
-        process.standardOutput = outputPipe
-        process.standardError = errorPipe
-
-        process.terminationHandler = { process in
-            if process.terminationStatus == 0 {
-                let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-                if let result = String(data: data, encoding: .utf8)?
-                    .trimmingCharacters(in: .whitespacesAndNewlines),
-                   !result.isEmpty {
-                    continuation.resume(returning: result)
-                } else {
-                    continuation.resume(returning: nil)
-                }
+            if let error = error {
+                let errorString = error["NSAppleScriptErrorMessage"] as? String ?? "Unknown error"
+                continuation.resume(throwing: TriviaError.spotifyPlaybackFailed(errorString))
+            } else if let stringValue = result?.stringValue, !stringValue.isEmpty {
+                continuation.resume(returning: stringValue)
             } else {
-                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-                let errorString = String(data: errorData, encoding: .utf8)?
-                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? "Unknown error"
-
-                let error = TriviaError.spotifyPlaybackFailed(errorString)
-                continuation.resume(throwing: error)
+                continuation.resume(returning: nil)
             }
-        }
-
-        do {
-            try process.run()
-        } catch {
-            continuation.resume(throwing: TriviaError.spotifyPlaybackFailed(error.localizedDescription))
         }
     }
 }
@@ -477,79 +459,50 @@ private func getSpotifyCurrentTrackURI(script: String) async throws -> String? {
 // MARK: - Private Methods
 
 /// Executes an AppleScript string asynchronously.
+/// Uses NSAppleScript for better performance than spawning Process.
 ///
 /// - Parameter script: The AppleScript code to execute.
 /// - Throws: An error if the script fails to execute.
 private func runAppleScript(_ script: String) async throws {
     logger.debug("Executing AppleScript")
-    
+
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
-        
-        let errorPipe = Pipe()
-        process.standardError = errorPipe
-        process.standardOutput = FileHandle.nullDevice
-        
-        process.terminationHandler = { [weak self] process in
-            if process.terminationStatus == 0 {
-                continuation.resume()
-            } else {
-                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-                let errorString = String(data: errorData, encoding: .utf8)?
-                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? "Unknown error"
-                
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var error: NSDictionary?
+            let appleScript = NSAppleScript(source: script)
+            _ = appleScript?.executeAndReturnError(&error)
+
+            if let error = error {
+                let errorString = error["NSAppleScriptErrorMessage"] as? String ?? "Unknown error"
                 self?.logger.error("AppleScript error: \(errorString, privacy: .public)")
-                
-                let error = TriviaError.spotifyPlaybackFailed(errorString)
-                continuation.resume(throwing: error)
+                continuation.resume(throwing: TriviaError.spotifyPlaybackFailed(errorString))
+            } else {
+                continuation.resume()
             }
-        }
-        
-        do {
-            try process.run()
-        } catch {
-            logger.error("Failed to run process: \(error.localizedDescription, privacy: .public)")
-            continuation.resume(throwing: TriviaError.spotifyPlaybackFailed(error.localizedDescription))
         }
     }
 }
 
 /// Gets the current playback position from Spotify.
+/// Uses NSAppleScript for better performance than spawning Process.
 ///
 /// - Returns: The current position in seconds, or nil if unable to retrieve.
 private func getPosition() async -> TimeInterval? {
     await withCheckedContinuation { continuation in
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", AppleScriptTemplates.getPosition]
-        
-        let outputPipe = Pipe()
-        process.standardOutput = outputPipe
-        process.standardError = FileHandle.nullDevice
-        
-        process.terminationHandler = { process in
-            guard process.terminationStatus == 0 else {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var error: NSDictionary?
+            let appleScript = NSAppleScript(source: AppleScriptTemplates.getPosition)
+            let result = appleScript?.executeAndReturnError(&error)
+
+            if error != nil {
+                self?.logger.debug("Failed to get position")
                 continuation.resume(returning: nil)
-                return
-            }
-            
-            let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-            if let result = String(data: data, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-               let seconds = Double(result) {
+            } else if let stringValue = result?.stringValue,
+                      let seconds = Double(stringValue) {
                 continuation.resume(returning: seconds)
             } else {
                 continuation.resume(returning: nil)
             }
-        }
-        
-        do {
-            try process.run()
-        } catch {
-            logger.debug("Failed to get position: \(error.localizedDescription, privacy: .public)")
-            continuation.resume(returning: nil)
         }
     }
 }
@@ -700,7 +653,11 @@ func authenticate() {
             UserDefaults.standard.set(codeVerifier, forKey: "spotify_code_verifier")
 
             // Build authorization URL
-            var components = URLComponents(string: "https://accounts.spotify.com/authorize")!
+            guard var components = URLComponents(string: "https://accounts.spotify.com/authorize") else {
+                logger.error("Failed to create URLComponents for authorization")
+                return
+            }
+
             components.queryItems = [
                 URLQueryItem(name: "client_id", value: clientID),
                 URLQueryItem(name: "response_type", value: "code"),
@@ -734,8 +691,13 @@ func handleCallback(code: String) {
         }
 
         // Exchange authorization code for access token
-        var components = URLComponents(string: "https://accounts.spotify.com/api/token")!
-        var request = URLRequest(url: components.url!)
+        guard let components = URLComponents(string: "https://accounts.spotify.com/api/token"),
+              let tokenURL = components.url else {
+            logger.error("Failed to create token URL")
+            return
+        }
+
+        var request = URLRequest(url: tokenURL)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 

@@ -25,7 +25,6 @@ enum SlideType: Hashable, Codable {
 
 /// A single slide in the presentation
 struct PresentationSlide: Identifiable {
-    let id = UUID()
     let type: SlideType
 
     /// Display title for sidebar
@@ -37,6 +36,46 @@ struct PresentationSlide: Identifiable {
     /// Associated game data IDs if applicable
     var roundID: UUID?
     var questionID: UUID?
+
+    /// Stable, deterministic ID based on slide content
+    /// This prevents unnecessary view recreation when slides regenerate
+    var id: String {
+        switch type {
+        case .welcome:
+            return "welcome"
+        case .rules:
+            return "rules"
+        case .roundTitle(let roundIndex):
+            if let roundID = roundID {
+                return "round-\(roundID.uuidString)"
+            }
+            return "round-\(roundIndex)"
+        case .question(let roundIndex, let questionIndex):
+            if let questionID = questionID {
+                return "question-\(questionID.uuidString)"
+            }
+            return "question-\(roundIndex)-\(questionIndex)"
+        case .submitAnswers(let roundIndex):
+            if let roundID = roundID {
+                return "submit-\(roundID.uuidString)"
+            }
+            return "submit-\(roundIndex)"
+        case .answer(let roundIndex, let questionIndex):
+            if let questionID = questionID {
+                return "answer-\(questionID.uuidString)"
+            }
+            return "answer-\(roundIndex)-\(questionIndex)"
+        case .standings(let afterRound):
+            if let afterRound = afterRound {
+                return "standings-\(afterRound)"
+            }
+            return "standings-final"
+        case .finalResults:
+            return "final-results"
+        case .thankYou:
+            return "thank-you"
+        }
+    }
 
     // MARK: - Performance Optimization: Pre-computed Values
 
@@ -62,7 +101,6 @@ struct PresentationSlide: Identifiable {
 extension PresentationSlide: Equatable {
     static func == (lhs: PresentationSlide, rhs: PresentationSlide) -> Bool {
         // Compare all properties except rankedTeams (which can't be directly compared)
-        lhs.id == rhs.id &&
         lhs.type == rhs.type &&
         lhs.title == rhs.title &&
         lhs.icon == rhs.icon &&
