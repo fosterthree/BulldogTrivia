@@ -1,0 +1,766 @@
+{
+  "rounds" : [
+    {
+      "id" : "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+      "questions" : [
+        {
+          "crosswordRevealIndex" : 2,
+          "format" : "Standard",
+          "answer" : "K2",
+          "songURL" : "",
+          "stopTime" : "",
+          "title" : "",
+          "points" : 1,
+          "artist" : "",
+          "titlePoints" : 1,
+          "text" : "What is the second tallest mountain in the world, as measured from sea level? It is considered more difficult and deadly to climb than Everest, owing to its more northern location.",
+          "artistPoints" : 1,
+          "startTime" : "",
+          "id" : "D426AC4B-7088-42EE-9263-69FD00285FD1"
+        },
+        {
+          "crosswordRevealIndex" : 4,
+          "format" : "Standard",
+          "answer" : "Mike Johnson (Speaker of the House)",
+          "songURL" : "",
+          "stopTime" : "",
+          "title" : "",
+          "points" : 1,
+          "artist" : "",
+          "titlePoints" : 1,
+          "text" : "Who is currently second in the Presidential Order of Succession, as outlined by the Presidential Succession Act of 1947?",
+          "artistPoints" : 1,
+          "startTime" : "",
+          "id" : "03C95289-CCEA-42D0-931D-DC3491D30E4E"
+        },
+        {
+          "crosswordRevealIndex" : 2,
+          "format" : "Standard",
+          "answer" : "Oxygen",
+          "songURL" : "",
+          "stopTime" : "",
+          "title" : "",
+          "points" : 1,
+          "artist" : "",
+          "titlePoints" : 1,
+          "text" : "What is the second most abundant gas in Earth’s atmosphere?",
+          "artistPoints" : 1,
+          "startTime" : "",
+          "id" : "C1CC2BD7-DA1D-4BF0-9B85-13519C7718A6"
+        },
+        {
+          "text" : "Widely considered the superior film, this Scorsese movie controversially lost the 1991 Academy Award for Best Picture to “Dances with Wolves”.",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Goodfellas",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "92FA8777-DCD4-4296-A815-53531D30137B",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "crosswordRevealIndex" : 5,
+          "format" : "Standard",
+          "answer" : "Pennsylvania",
+          "songURL" : "",
+          "stopTime" : "",
+          "title" : "",
+          "points" : 1,
+          "artist" : "",
+          "titlePoints" : 1,
+          "text" : "What state was the second to ratify the US Constitution?",
+          "artistPoints" : 1,
+          "startTime" : "",
+          "id" : "A96BD4C7-7BDA-4854-B698-D70A4C708950"
+        },
+        {
+          "text" : "While the New York Yankees have won the most World Series titles with 27, what team has won the second most World Series titles with 11?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "St. Louis Cardinals",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "1169775E-2E45-41C2-9A2B-9F74F56723E6",
+          "artist" : "",
+          "format" : "Standard"
+        }
+      ],
+      "format" : "Standard Q&A",
+      "name" : "If You Ain't First, Yer Last"
+    },
+    {
+      "id" : "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+      "questions" : [
+        {
+          "text" : "What common strength-training exercise involves grasping a bar with palms facing away and lifting the body until the chin is above the bar?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Pull-up",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "F7AECEE2-A93F-45E2-85BB-805516FE0A30",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "What type of boat is often associated with the “Eskimo roll”, a maneuver used to right the vessel after capsizing?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Kayak",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "6824A3B9-F563-4E8E-A33D-0F518A7D69A7",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "Open wheel, stock, rally, and dragster are all examples of what type of vehicle?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Race car",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "C055C68F-C77C-4944-8C99-41769F47D079",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "This 2020 sci-fi action movie starring John David Washington and Robert Pattinson was the first major blockbuster to be released in theaters during the COVID-19 pandemic; it ended up losing the studio an estimated $100 million.",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Tenet",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "7AE5F9CB-DC36-4A89-892B-D741D179DD41",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "In nautical terms, the meridian passage of the sun is used to pinpoint what exact time of day, which is crucial for celestial navigation?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Noon",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "E5CAA573-AE3E-423A-B5DC-278BC008B667",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "What Swedish pop group shot to international fame after winning the 1974 Eurovision Song Contest?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "ABBA",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "1B803428-FB40-4D1A-986F-3C3A93DE3708",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Palindromes",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "392F74CA-703B-4C6E-8298-8B55E3B8F1EA",
+          "artist" : "",
+          "format" : "Connection"
+        }
+      ],
+      "format" : "Standard Q&A",
+      "name" : "There And Back Again"
+    },
+    {
+      "id" : "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+      "questions" : [
+        {
+          "text" : "",
+          "stopTime" : "0:30",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/7jIAttgQTpLDoNtykIQXjH?si=0ba6f1a242d04029",
+          "startTime" : "0:00",
+          "title" : "Blister In The Sun",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "14A14128-44A0-4DB5-B4CD-DADBA50E29B0",
+          "artist" : "Violent Femmes",
+          "format" : "Music Question"
+        },
+        {
+          "text" : "",
+          "stopTime" : "1:28",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/0iwo02NoGqyooxs81iEkz3?si=30f0dbea599a4960",
+          "startTime" : "1:00",
+          "title" : "The Ballad of John And Yoko",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "12EA97DA-F45F-47B9-9A89-28D4763F883F",
+          "artist" : "The Beatles",
+          "format" : "Music Question"
+        },
+        {
+          "text" : "",
+          "stopTime" : "3:30",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/7ACxUo21jtTHzy7ZEV56vU?si=ab18d49b4d3e480e",
+          "startTime" : "3:00",
+          "title" : "Crazy Train",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "C38598AF-BE9E-42C4-B1F3-DDC62D825DC8",
+          "artist" : "Ozzy Osbourne",
+          "format" : "Music Question"
+        },
+        {
+          "text" : "",
+          "stopTime" : "0:45",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/3AJwUDP919kvQ9QcozQPxg?si=bae012d101eb4c12",
+          "startTime" : "0:15",
+          "title" : "Yellow",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "848C29F3-B1BA-48C1-9A94-0FCA2A643C7B",
+          "artist" : "Coldplay",
+          "format" : "Music Question"
+        },
+        {
+          "text" : "",
+          "stopTime" : "1:15",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/0lnxrQAd9ZxbhBBe7d8FO8?si=6e7b734219244074",
+          "startTime" : "0:45",
+          "title" : "MMMBop",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "1C817BE3-00C5-431F-AA81-A929FE567A73",
+          "artist" : "Hanson",
+          "format" : "Music Question"
+        },
+        {
+          "text" : "",
+          "stopTime" : "2:00",
+          "artistPoints" : 0.5,
+          "answer" : "",
+          "songURL" : "https:\/\/open.spotify.com\/track\/1c8gk2PeTE04A1pIDH9YMk?si=a312aa874cd543d3",
+          "startTime" : "1:30",
+          "title" : "Rolling In The Deep",
+          "titlePoints" : 0.5,
+          "points" : 1,
+          "id" : "CE07C2EA-806F-4AB4-B805-539740474EEE",
+          "artist" : "Adele",
+          "format" : "Music Question"
+        }
+      ],
+      "format" : "Music",
+      "name" : "Music Round"
+    },
+    {
+      "id" : "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+      "questions" : [
+        {
+          "text" : "Geography: What is the world’s largest desert, spanning approximately 5.5 million square miles?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Antarctic Polar Desert",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "000700FB-853E-4F21-A828-4E2668896C25",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "Entertainment: Who was the first woman ever inducted into the Rock and Roll Hall of Fame?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Aretha Franklin",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "A9729883-4D32-41DE-833B-5235FBDE0D8D",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "History: On this day in history…in 1965, this beloved holiday special aired for the first time. CBS executives, unhappy with the music, the pacing and the reading of a Bible verse, almost refused to air it.",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "A Charlie Brown Christmas",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "4815BA83-4527-4910-B18F-80689F30EDB2",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "Arts & Literature: What architectural style, which flourished in Europe from the 12th to the 16th century, is characterized by use of the pointed arch, ribbed vault, and flying buttress?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Gothic",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "07C72621-E040-4D33-87AD-04121DFC1AD4",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "Science & Nature: What is the pH value of pure water?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "7.0",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "E35874CF-6ACF-4A67-827B-56CBFC1C02B2",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "Sports & Leisure: Which country is the only one in history to have played in every single FIFA World Cup tournament?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "Brazil",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "951821DC-E7AE-401B-A306-754DF4B73EF4",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "The current record for NFL Draft attendance was set by Detroit in 2024. How many thousands of fans were in attendance across the 3-day event?",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "775,000",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "975227C1-D043-45B8-8737-A81B03D2BE56",
+          "artist" : "",
+          "format" : "Tiebreaker"
+        }
+      ],
+      "format" : "Standard Q&A",
+      "name" : "Trivial Pursuit"
+    },
+    {
+      "id" : "64964BB8-FAC8-42EF-BC38-DB42EBE207E6",
+      "questions" : [
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "3AE53340-484E-4013-BCE0-587D1DE2946D",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "3F8C01C4-0FD5-4CD8-ACB8-47E3903D62F9",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "FB17D2DB-A1DE-4DFE-B47A-C4929CB33082",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "1687401F-6A5B-41EF-B16A-9758B822D244",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "C52BD002-B6EA-442E-A1D5-2A83EEDB00AF",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "379CCC4C-2DB5-4B9B-87C1-E43FACD11C39",
+          "artist" : "",
+          "format" : "Standard"
+        }
+      ],
+      "format" : "Standard Q&A",
+      "name" : "New Round"
+    },
+    {
+      "id" : "43E5C36F-127A-4974-B564-F649109798F6",
+      "questions" : [
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "605056CA-CBAB-4270-B4C3-CA1AB870ACB5",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "B4045B38-CD20-4021-AC95-EBF01245DCA5",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "4D6E8CF0-883C-47A9-849E-CFE664FDB839",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "7185EF63-9C29-4E0C-99F0-8BFEB883E51C",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "AB687674-3EEE-4064-ACA7-6C2FABECC17B",
+          "artist" : "",
+          "format" : "Standard"
+        },
+        {
+          "text" : "",
+          "stopTime" : "",
+          "artistPoints" : 1,
+          "answer" : "",
+          "songURL" : "",
+          "startTime" : "",
+          "title" : "",
+          "titlePoints" : 1,
+          "points" : 1,
+          "id" : "EFC79788-AAA8-4461-9000-81B5F48589E8",
+          "artist" : "",
+          "format" : "Standard"
+        }
+      ],
+      "format" : "Standard Q&A",
+      "name" : "New Round"
+    }
+  ],
+  "teams" : [
+    {
+      "scores" : [
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        5,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        5,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5.5
+      ],
+      "id" : "99987B2A-AC37-4136-9D37-B51E2E8805B8",
+      "tiebreakerScore" : 0,
+      "name" : "Bob Loblaw"
+    },
+    {
+      "scores" : [
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        5,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        4,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        6
+      ],
+      "id" : "DCA1ACAD-729A-47A9-9879-FC693A9364F9",
+      "tiebreakerScore" : 0,
+      "name" : "Poe's Pals"
+    },
+    {
+      "scores" : [
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        4,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        5,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5
+      ],
+      "id" : "3B5CE440-6903-4C7F-824A-BD7786CBDC7A",
+      "tiebreakerScore" : 0,
+      "name" : "Sports Sports Sports"
+    },
+    {
+      "scores" : [
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        3,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        4,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        6,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7
+      ],
+      "id" : "72ED143E-31E4-4223-9570-5DFA66337456",
+      "tiebreakerScore" : 0,
+      "name" : "Useless Info"
+    },
+    {
+      "scores" : [
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5.5,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        3,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        6,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        5
+      ],
+      "id" : "EA9303A8-A8A2-4998-97DF-DF46D5BC01AB",
+      "tiebreakerScore" : 0,
+      "name" : "Baby Coming"
+    },
+    {
+      "scores" : [
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        6,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        5,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        3,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5
+      ],
+      "id" : "79828767-0A8B-49FF-9B0F-1BFCBF6C032E",
+      "tiebreakerScore" : 0,
+      "name" : "Guest Check"
+    },
+    {
+      "scores" : [
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        6,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5.5,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        5,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        2
+      ],
+      "id" : "A1AE25B7-70E1-4B25-A8ED-9F5D5E8F0337",
+      "tiebreakerScore" : 0,
+      "name" : "Trivia Newton John"
+    },
+    {
+      "scores" : [
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        3,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        6,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        4
+      ],
+      "id" : "34DB4FCD-3327-4D7D-94B4-8031B46B9312",
+      "tiebreakerScore" : 0,
+      "name" : "Mojo Dojo Casa House"
+    },
+    {
+      "scores" : [
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        1,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        4
+      ],
+      "id" : "7749BF12-3AA2-4E90-B3A9-85A47AF6B902",
+      "tiebreakerScore" : 0,
+      "name" : "Team 2"
+    },
+    {
+      "scores" : [
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        3,
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        5,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        2,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        7
+      ],
+      "id" : "73E92DF5-086C-41CF-A930-8421477F4040",
+      "tiebreakerScore" : 0,
+      "name" : "Sweet Baby Gays"
+    },
+    {
+      "scores" : [
+        "C5240402-B176-4D3D-A9FF-F1AADCA10791",
+        3.5,
+        "43632B06-B8E4-40A2-A1C5-40742F3C1539",
+        2,
+        "5BEB9DD9-1B94-4585-A465-C3A02683AA24",
+        0,
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        1
+      ],
+      "id" : "FB247E2C-840C-498D-A89A-A64614FC48F1",
+      "tiebreakerScore" : 0,
+      "name" : "The Slay Belles"
+    },
+    {
+      "scores" : [
+        "6141431A-C7C1-4569-AD6F-5A75B26EF13E",
+        1
+      ],
+      "id" : "72D23818-365A-43CD-8A36-72BB7C7E19A9",
+      "tiebreakerScore" : 0,
+      "name" : "will it blend"
+    },
+    {
+      "scores" : [
+
+      ],
+      "id" : "47EE6C79-B130-44FA-8A5D-C3CFD26D6CFE",
+      "tiebreakerScore" : 0,
+      "name" : "team 13"
+    }
+  ]
+}

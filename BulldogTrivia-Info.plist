@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+<key>CFBundleDevelopmentRegion</key>
+<string>$(DEVELOPMENT_LANGUAGE)</string>
+<key>CFBundleExecutable</key>
+<string>$(EXECUTABLE_NAME)</string>
+<key>CFBundleIdentifier</key>
+<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+<key>CFBundleInfoDictionaryVersion</key>
+<string>6.0</string>
+<key>CFBundleName</key>
+<string>$(PRODUCT_NAME)</string>
+<key>CFBundlePackageType</key>
+<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+<key>CFBundleShortVersionString</key>
+<string>1.0</string>
+<key>CFBundleVersion</key>
+<string>1</string>
+<key>LSMinimumSystemVersion</key>
+<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+<key>NSHumanReadableCopyright</key>
+<string>Copyright © 2026 Asa Foster. All rights reserved.</string>
+<key>NSPrincipalClass</key>
+<string>NSApplication</string>
+<key>NSAppleEventsUsageDescription</key>
+<string>BulldogTrivia needs to control Spotify to play music questions during trivia games.</string>
+
+<!-- Font Registration -->
+<key>UIAppFonts</key>
+<array>
+	<string>Gothic821 Cn BT.ttf</string>
+</array>
+<key>ATSApplicationFontsPath</key>
+<string>.</string>
+
+<!-- Document Types (for .trivia files) -->
+<key>CFBundleDocumentTypes</key>
+<array>
+	<dict>
+		<key>CFBundleTypeExtensions</key>
+		<array>
+			<string>trivia</string>
+		</array>
+		<key>CFBundleTypeIconFile</key>
+		<string></string>
+		<key>CFBundleTypeName</key>
+		<string>Trivia Game</string>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>LSHandlerRank</key>
+		<string>Owner</string>
+		<key>LSItemContentTypes</key>
+		<array>
+			<string>com.bulldogtrivia.game</string>
+		</array>
+	</dict>
+</array>
+
+<!-- Exported UTI -->
+<key>UTExportedTypeDeclarations</key>
+<array>
+	<dict>
+		<key>UTTypeConformsTo</key>
+		<array>
+			<string>public.json</string>
+		</array>
+		<key>UTTypeDescription</key>
+		<string>Trivia Game</string>
+		<key>UTTypeIdentifier</key>
+		<string>com.bulldogtrivia.game</string>
+		<key>UTTypeTagSpecification</key>
+		<dict>
+			<key>public.filename-extension</key>
+			<array>
+				<string>trivia</string>
+			</array>
+		</dict>
+	</dict>
+</array>
+</dict>
+</plist>

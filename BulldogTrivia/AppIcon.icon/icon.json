@@ -1,0 +1,40 @@
+{
+  "fill" : {
+    "solid" : "display-p3:0.31758,0.43941,0.34822,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : "automatic",
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "BDP-Bulldog.png",
+          "name" : "BDP-Bulldog",
+          "position" : {
+            "scale" : 0.2,
+            "translation-in-points" : [
+              -415.99091937340927,
+              287.63937170021836
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
