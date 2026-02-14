@@ -90,6 +90,11 @@ func testHalfPointsIsValid() {
     XCTAssertNil(result)
 }
 
+func testNonHalfIncrementPointsReturnsError() {
+    let result = TriviaValidator.validatePoints(1.2)
+    XCTAssertEqual(result, .invalidPointValue(1.2))
+}
+
 // MARK: - Duplicate Team Validation
 
 func testDuplicateTeamNamesReturnsError() {

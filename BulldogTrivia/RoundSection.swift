@@ -73,12 +73,11 @@ struct RoundSection: View {
                         Label("Add Question", systemImage: "plus.circle")
                     }
                     .buttonStyle(.borderless)
-                    .padding(.top, 10)
-                    .padding(.bottom, 4)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
                     .accessibilityLabel("Add question to round \(index + 1)")
                 }
                 .padding(.horizontal, 18)
-                .padding(.vertical, 20)
             }
         }
         .background(Color(NSColor.controlBackgroundColor))
@@ -169,7 +168,7 @@ struct RoundSection: View {
             .accessibilityLabel("Delete round \(index + 1)")
         }
         .padding(.horizontal, 18)
-        .padding(.top, 20)
+        .padding(.vertical, 20)
     }
 
     // MARK: - Helpers

@@ -15,12 +15,6 @@ enum SlideType: Hashable, Codable {
     case submitAnswers(roundIndex: Int)
     case answer(roundIndex: Int, questionIndex: Int)
     case standings(afterRound: Int?)  // nil = final standings
-
-    // MARK: Reserved for Future Use
-    // These cases are not currently generated but are kept for potential future features
-    case rules
-    case finalResults
-    case thankYou
 }
 
 /// A single slide in the presentation
@@ -43,8 +37,6 @@ struct PresentationSlide: Identifiable {
         switch type {
         case .welcome:
             return "welcome"
-        case .rules:
-            return "rules"
         case .roundTitle(let roundIndex):
             if let roundID = roundID {
                 return "round-\(roundID.uuidString)"
@@ -70,10 +62,6 @@ struct PresentationSlide: Identifiable {
                 return "standings-\(afterRound)"
             }
             return "standings-final"
-        case .finalResults:
-            return "final-results"
-        case .thankYou:
-            return "thank-you"
         }
     }
 

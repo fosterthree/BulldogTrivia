@@ -199,9 +199,7 @@ var defaultQuestion: Question {
             answer: "",
             points: 1.0,
             title: "",
-            artist: "",
-            titlePoints: 1.0,
-            artistPoints: 1.0
+            artist: ""
         )
     case .crossword:
         return Question(format: .crosswordClue, text: "", answer: "", points: 1.0)

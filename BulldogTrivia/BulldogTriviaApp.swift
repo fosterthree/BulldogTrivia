@@ -17,6 +17,59 @@ class SidebarPreviewState: ObservableObject {
     @AppStorage("showSidebarPreview") var isShown = true
 }
 
+// MARK: - Focus Manager
+
+/// Global focus manager that dismisses text field focus when clicking outside fields.
+/// Installed once at app launch and removed during app termination.
+final class FocusManager {
+    static let shared = FocusManager()
+
+    private var eventMonitor: Any?
+
+    private init() {}
+
+    func start() {
+        guard eventMonitor == nil else { return }
+
+        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
+            guard let window = event.window, let contentView = window.contentView else {
+                return event
+            }
+
+            let clickedView = contentView.hitTest(event.locationInWindow)
+            if let clickedView, FocusManager.isTextInputView(clickedView) {
+                return event
+            }
+
+            window.makeFirstResponder(nil)
+            return event
+        }
+    }
+
+    func stop() {
+        guard let monitor = eventMonitor else { return }
+        NSEvent.removeMonitor(monitor)
+        eventMonitor = nil
+    }
+
+    private static func isTextInputView(_ view: NSView) -> Bool {
+        var currentView: NSView? = view
+
+        while let candidate = currentView {
+            if candidate is NSTextField || candidate is NSTextView || candidate is NSSearchField {
+                return true
+            }
+            currentView = candidate.superview
+        }
+
+        return false
+    }
+
+    deinit {
+        stop()
+    }
+}
+
 @main
 struct BulldogTriviaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate

@@ -9,6 +9,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         removeEventMonitor()
+        FocusManager.shared.start()
 
         // Install global keyboard event monitor for arrow keys
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
@@ -51,6 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         removeEventMonitor()
+        FocusManager.shared.stop()
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -65,6 +67,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     deinit {
         removeEventMonitor()
+        FocusManager.shared.stop()
     }
 
     private func removeEventMonitor() {

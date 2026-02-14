@@ -345,12 +345,6 @@ struct PresentationControlPanel: View {
                 return "Standings after round \(round + 1)\(currentIndicator)"
             }
             return "Final standings\(currentIndicator)"
-        case .rules:
-            return "Rules slide\(currentIndicator)"
-        case .finalResults:
-            return "Final results slide\(currentIndicator)"
-        case .thankYou:
-            return "Thank you slide\(currentIndicator)"
         }
     }
 }

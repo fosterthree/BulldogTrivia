@@ -108,7 +108,7 @@ case crosswordAnswerTooLong(String, Int)
 /// - Parameter answer: The answer containing spaces.
 case crosswordAnswerContainsSpaces(String)
 
-/// Point value is outside the valid range (0-10).
+/// Point value is outside the valid range (0-10) or not in half-point increments.
 ///
 /// - Parameter value: The invalid point value.
 case invalidPointValue(Double)
@@ -161,7 +161,7 @@ var errorDescription: String? {
     case .crosswordAnswerContainsSpaces(let answer):
         return "Crossword answer '\(answer)' cannot contain spaces."
     case .invalidPointValue(let value):
-        return "Invalid point value: \(value). Points must be between 0 and 10."
+        return "Invalid point value: \(value). Points must be 0-10 in 0.5 increments."
         
     case .noSlidesGenerated:
         return "No slides were generated. Please add rounds and questions first."
@@ -203,7 +203,7 @@ var recoverySuggestion: String? {
     case .crosswordAnswerContainsSpaces:
         return "Crossword answers must be single words without spaces."
     case .invalidPointValue:
-        return "Enter a point value between 0 and 10."
+        return "Enter a point value from 0 to 10 in half-point increments (for example: 1, 1.5, 2)."
         
     case .noSlidesGenerated:
         return "Add at least one round with questions to start the presentation."
@@ -311,14 +311,19 @@ static func validateCrosswordAnswer(_ answer: String) -> TriviaError? {
     return nil
 }
 
-/// Validates that a point value is within the allowed range.
+/// Validates that a point value is within the allowed range and in half-point increments.
 ///
-/// Points must be between 0 and 10, inclusive.
+/// Points must be between 0 and 10, inclusive, and must be a multiple of 0.5.
 ///
 /// - Parameter points: The point value to validate.
 /// - Returns: `TriviaError.invalidPointValue` if invalid, nil if valid.
 static func validatePoints(_ points: Double) -> TriviaError? {
     if points < 0 || points > 10 {
+        return .invalidPointValue(points)
+    }
+
+    let halfPointUnits = points * 2
+    if abs(halfPointUnits.rounded() - halfPointUnits) > 0.000_001 {
         return .invalidPointValue(points)
     }
     return nil
@@ -507,12 +512,6 @@ static func validateGameData(_ gameData: TriviaGameData) -> [TriviaError] {
                     errors.append(error)
                 }
                 if let error = validateTimeFormat(question.stopTime) {
-                    errors.append(error)
-                }
-                if let error = validatePoints(question.titlePoints) {
-                    errors.append(error)
-                }
-                if let error = validatePoints(question.artistPoints) {
                     errors.append(error)
                 }
             }

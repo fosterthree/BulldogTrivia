@@ -17,22 +17,35 @@ let onDelete: () -> Void
 @EnvironmentObject var spotifyController: SpotifyController
 @EnvironmentObject var presentationController: PresentationController
 @FocusState private var focusedField: String?
+@State private var localPointsText = ""
+
+private let pointsFieldID = "points"
 
 var body: some View {
     HStack(alignment: .top, spacing: 14) {
         leadingIcon
-        
+
         Divider()
             .frame(width: 1)
             .padding(.vertical, -8)
             .allowsHitTesting(false)
-        
+
         if question.format == .musicQuestion {
             musicBody
         } else if question.format == .beforeAndAfter {
             beforeAndAfterBody
         } else {
             standardBody
+        }
+
+        if question.format != .tiebreaker {
+            Divider()
+                .frame(width: 1)
+                .padding(.vertical, -8)
+                .allowsHitTesting(false)
+
+            pointValueField
+                .frame(width: 40)
         }
     }
     .padding(14)
@@ -96,9 +109,67 @@ private var leadingIcon: some View {
     }
 }
 
+// MARK: - Point Value Field
+private var pointValueField: some View {
+    VStack {
+        Spacer(minLength: 0)
+
+        VStack(spacing: 4) {
+            let isPointsFocused = focusedField == pointsFieldID
+            let isValidPoints = pointsFieldValidationValue(isFocused: isPointsFocused)
+                .map { TriviaValidator.validatePoints($0) == nil }
+                ?? (isPointsFocused && localPointsText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            TextField("1", text: $localPointsText)
+                .textFieldStyle(.plain)
+                .multilineTextAlignment(.center)
+                .font(.body)
+                .monospacedDigit()
+                .padding(10)
+                .background(.background, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(
+                            !isValidPoints ? Color.red :
+                            (isPointsFocused ? Color.accentColor : Color.secondary.opacity(0.35)),
+                            lineWidth: !isValidPoints ? 2 : (isPointsFocused ? 2 : 1)
+                        )
+                )
+                .focused($focusedField, equals: pointsFieldID)
+                .onAppear { syncPointsFieldFromModel() }
+                .onChange(of: question.points) { _, _ in
+                    if focusedField != pointsFieldID {
+                        syncPointsFieldFromModel()
+                    }
+                }
+                .onSubmit {
+                    commitPointsField()
+                }
+                .onChange(of: focusedField == pointsFieldID) { _, isFocused in
+                    if isFocused {
+                        syncPointsFieldFromModel()
+                    } else {
+                        commitPointsField()
+                    }
+                }
+
+            Text(question.points == 1 ? "POINT" : "POINTS")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+        }
+
+        Spacer(minLength: 0)
+    }
+}
+
 // MARK: - Standard Body
 private var standardBody: some View {
     VStack(spacing: 10) {
+        if question.format == .connection {
+            Spacer(minLength: 0)
+        }
+
         if question.format != .connection {
             labeledTextField(
                 title: questionPlaceholder,
@@ -126,7 +197,7 @@ private var standardBody: some View {
                 fieldID: "answer"
             )
             .help(isAnswerInvalid ? "Crossword answers must be 12 characters or less and cannot contain spaces." : "")
-            
+
             if question.format == .crosswordClue {
                 let revealBinding = Binding<String>(
                     get: { question.crosswordRevealIndex ?? "1" },
@@ -138,7 +209,7 @@ private var standardBody: some View {
                 LabeledContent {
                     TextField("1,2", text: revealBinding)
                         .textFieldStyle(.plain)
-                        .frame(width: 60)
+                        .frame(width: 30)
                         .padding(10)
                         .background(.background, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .overlay(
@@ -157,22 +228,6 @@ private var standardBody: some View {
                 }
                 .help("Which letter index/indices to reveal (1-based, comma-separated for multiple)")
             }
-            
-            if question.format != .tiebreaker {
-                let pointsBinding = Binding<Double>(
-                    get: { question.points },
-                    set: { newValue in
-                        question.points = min(max(0, newValue), 10)
-                    }
-                )
-                
-                Stepper(value: pointsBinding, in: 0...10, step: 0.5) {
-                    Text(question.points.formatted(.number.precision(.fractionLength(1))))
-                        .monospacedDigit()
-                }
-                .accessibilityLabel("Points: \(question.points.formatted(.number.precision(.fractionLength(1))))")
-                .accessibilityHint("Adjust point value for this question")
-            }
         }
 
         if question.showPresenterNotes {
@@ -184,6 +239,10 @@ private var standardBody: some View {
                 accessibilityLabel: "Presenter notes",
                 fieldID: "presenterNotes"
             )
+        }
+
+        if question.format == .connection {
+            Spacer(minLength: 0)
         }
     }
 }
@@ -219,32 +278,16 @@ private var beforeAndAfterBody: some View {
             fieldID: "clue2"
         )
 
-        HStack(alignment: .center, spacing: 10) {
-            labeledTextField(
-                title: "Combined Answer...",
-                text: $question.answer,
-                icon: "a.circle",
-                accessibilityLabel: "Combined answer",
-                alwaysItalic: true,
-                alwaysSecondary: true,
-                validationRules: ValidationPresets.answerText,
-                fieldID: "answer"
-            )
-
-            let pointsBinding = Binding<Double>(
-                get: { question.points },
-                set: { newValue in
-                    question.points = min(max(0, newValue), 10)
-                }
-            )
-
-            Stepper(value: pointsBinding, in: 0...10, step: 0.5) {
-                Text(question.points.formatted(.number.precision(.fractionLength(1))))
-                    .monospacedDigit()
-            }
-            .accessibilityLabel("Points: \(question.points.formatted(.number.precision(.fractionLength(1))))")
-            .accessibilityHint("Adjust point value for this question")
-        }
+        labeledTextField(
+            title: "Combined Answer...",
+            text: $question.answer,
+            icon: "a.circle",
+            accessibilityLabel: "Combined answer",
+            alwaysItalic: true,
+            alwaysSecondary: true,
+            validationRules: ValidationPresets.answerText,
+            fieldID: "answer"
+        )
 
         if question.showPresenterNotes {
             labeledTextField(
@@ -262,53 +305,23 @@ private var beforeAndAfterBody: some View {
 // MARK: - Music Body
 private var musicBody: some View {
     VStack(spacing: 10) {
-        HStack(alignment: .center, spacing: 10) {
-            labeledTextField(
-                title: "Title...",
-                text: $question.title,
-                icon: "music.note",
-                accessibilityLabel: "Song title",
-                validationRules: ValidationPresets.musicTitle,
-                fieldID: "title"
-            )
-            
-            let titlePointsBinding = Binding<Double>(
-                get: { question.titlePoints },
-                set: { newValue in
-                    question.titlePoints = min(max(0, newValue), 10)
-                }
-            )
-            
-            Stepper(value: titlePointsBinding, in: 0...10, step: 0.5) {
-                Text(question.titlePoints.formatted(.number.precision(.fractionLength(1))))
-                    .monospacedDigit()
-            }
-            .accessibilityLabel("Title points: \(question.titlePoints.formatted(.number.precision(.fractionLength(1))))")
-        }
+        labeledTextField(
+            title: "Title...",
+            text: $question.title,
+            icon: "music.note",
+            accessibilityLabel: "Song title",
+            validationRules: ValidationPresets.musicTitle,
+            fieldID: "title"
+        )
 
-        HStack(alignment: .center, spacing: 10) {
-            labeledTextField(
-                title: "Artist...",
-                text: $question.artist,
-                icon: "music.microphone",
-                accessibilityLabel: "Artist name",
-                validationRules: ValidationPresets.artistName,
-                fieldID: "artist"
-            )
-            
-            let artistPointsBinding = Binding<Double>(
-                get: { question.artistPoints },
-                set: { newValue in
-                    question.artistPoints = min(max(0, newValue), 10)
-                }
-            )
-            
-            Stepper(value: artistPointsBinding, in: 0...10, step: 0.5) {
-                Text(question.artistPoints.formatted(.number.precision(.fractionLength(1))))
-                    .monospacedDigit()
-            }
-            .accessibilityLabel("Artist points: \(question.artistPoints.formatted(.number.precision(.fractionLength(1))))")
-        }
+        labeledTextField(
+            title: "Artist...",
+            text: $question.artist,
+            icon: "music.microphone",
+            accessibilityLabel: "Artist name",
+            validationRules: ValidationPresets.artistName,
+            fieldID: "artist"
+        )
 
         HStack(alignment: .center, spacing: 10) {
             labeledTextField(
@@ -530,6 +543,42 @@ private func searchSpotifyForSong() {
         }
     }
 }
+
+private func pointsFieldValidationValue(isFocused: Bool) -> Double? {
+    if isFocused {
+        let trimmed = localPointsText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return Double(trimmed)
+    }
+    return question.points
+}
+
+private func commitPointsField() {
+    let trimmed = localPointsText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty, let enteredPoints = Double(trimmed) else {
+        syncPointsFieldFromModel()
+        return
+    }
+
+    guard TriviaValidator.validatePoints(enteredPoints) == nil else {
+        syncPointsFieldFromModel()
+        return
+    }
+
+    question.points = enteredPoints
+    syncPointsFieldFromModel()
+}
+
+private func syncPointsFieldFromModel() {
+    localPointsText = formatPoints(question.points)
+}
+
+private func formatPoints(_ points: Double) -> String {
+    if points == points.rounded() {
+        return String(Int(points))
+    }
+    return points.formatted(.number.precision(.fractionLength(1)))
+}
 }
 
 // MARK: - Styled Deferred Text Field
@@ -588,4 +637,3 @@ private struct StyledDeferredTextField: View {
             }
     }
 }
-

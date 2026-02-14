@@ -57,8 +57,6 @@ private func slideView(for slide: PresentationSlide, geometry: GeometryProxy) ->
     switch slide.type {
     case .welcome:
         WelcomeSlide(scale: scale)
-    case .rules:
-        EmptyView()
     case .roundTitle(let roundIndex):
         if roundIndex < gameData.rounds.count {
             RoundTitleSlide(
@@ -105,10 +103,6 @@ private func slideView(for slide: PresentationSlide, geometry: GeometryProxy) ->
             windowHeight: geometry.size.height,
             revealCount: presentationController.standingsRevealCount
         )
-    case .finalResults:
-        EmptyView()
-    case .thankYou:
-        EmptyView()
     }
 }
 }

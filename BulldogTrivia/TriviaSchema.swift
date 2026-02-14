@@ -149,8 +149,8 @@ var questions: [Question]
 ///
 /// ## Music Questions
 /// Use `title`, `artist`, `songURL`, `startTime`, and `stopTime`
-/// for audio-based questions. `titlePoints` and `artistPoints` allow
-/// separate scoring for each component.
+/// for audio-based questions. Music questions use the shared `points`
+/// field for scoring.
 ///
 /// ## Crossword Questions
 /// Use `text` for the clue, `answer` for the word, and `crosswordRevealIndex`
@@ -165,8 +165,6 @@ var questions: [Question]
 /// var q2 = Question(format: .musicQuestion, text: "", answer: "", points: 0)
 /// q2.title = "Bohemian Rhapsody"
 /// q2.artist = "Queen"
-/// q2.titlePoints = 1.0
-/// q2.artistPoints = 1.0
 /// q2.songURL = "spotify:track:xxx"
 /// q2.startTime = "0:55"
 /// q2.stopTime = "1:10"
@@ -210,14 +208,14 @@ var title: String = ""
 /// Maximum recommended length: 100 characters.
 var artist: String = ""
 
-/// Points awarded for correctly identifying the song title.
+/// Legacy points field retained for backwards compatibility with older files.
 ///
-/// Valid range: 0.0 to 10.0
+/// - Note: The app uses `points` for scoring.
 var titlePoints: Double = 1.0
 
-/// Points awarded for correctly identifying the artist.
+/// Legacy points field retained for backwards compatibility with older files.
 ///
-/// Valid range: 0.0 to 10.0
+/// - Note: The app uses `points` for scoring.
 var artistPoints: Double = 1.0
 
 /// Spotify URL or URI for the song.
@@ -370,8 +368,7 @@ case crossword = "Crossword"
 
 /// Music identification format with audio playback.
 ///
-/// Questions use `title`, `artist`, `songURL`, `startTime`, `stopTime`,
-/// `titlePoints`, and `artistPoints`.
+/// Questions use `title`, `artist`, `songURL`, `startTime`, `stopTime`, and `points`.
 case music = "Music"
 
 /// Before & After format where two clues link through a common word/phrase.
